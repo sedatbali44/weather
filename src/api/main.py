@@ -1,9 +1,9 @@
 # backend/app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api import locations, weather
-from .db.models import Base
-from .core.database import engine
+from api import locations, weather
+from api.core.database import engine
+from api.models import Base
 
 # Create database tables
 Base.metadata.create_all(bind=engine)

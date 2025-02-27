@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import httpx
-from ..core.database import get_db
-from ..db.models import Location
-from ..schemas.location import Location as LocationSchema, LocationCreate
-from ..schemas.weather import LocationWeather, CurrentWeather
+from api.core.database import get_db
+from api.models.location import Location
+from api.schemas.location import LocationSchema, LocationCreate
+from api.schemas.weather import LocationWeather, CurrentWeather
 from typing import List
 
 router = APIRouter()

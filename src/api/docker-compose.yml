@@ -10,8 +10,8 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/src/api 
-      - C:\Users\sedat\Downloads\country-capitals\country-capital-lat-long-population.csv
+      - .:/src/api
+      - /c/Users/sedat/Downloads/country-capitals/country-capital-lat-long-population.csv:/src/api/country-capital-lat-long-population.csv
 
   db:
     container_name: postgres
