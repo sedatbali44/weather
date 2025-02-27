@@ -1,15 +1,10 @@
-from pydantic import BaseModel, Field
+from sqlalchemy import Column, Integer, String, Float
+from api.core.database import Base
 
-class LocationBase(BaseModel):
-    name: str
-    latitude: float
-    longitude: float
+class Location(Base):
+    __tablename__ = "locations"
 
-class LocationCreate(LocationBase):
-    pass
-
-class Location(LocationBase):
-    id: int
-
-    class Config:
-        orm_mode = True
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)

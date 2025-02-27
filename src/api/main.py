@@ -1,9 +1,9 @@
-# backend/app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api import locations, weather
-from api.core.database import engine
+from api.api.locations import router as locations_router
+from api.api.weather import router as weather_router
 from api.models import Base
+from api.core.database import engine
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -20,8 +20,8 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(locations.router, tags=["Locations"])
-app.include_router(weather.router, tags=["Weather"])
+app.include_router(locations_router, tags=["Locations"])
+app.include_router(weather_router, tags=["Weather"])
 
 @app.get("/")
 def read_root():

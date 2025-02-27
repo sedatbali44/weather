@@ -1,11 +1,10 @@
-# backend/app/api/weather.py
+# File: src/api/api/weather.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import httpx
-from datetime import datetime
-from ..core.database import get_db
-from ..db.models import Location
-from ..schemas.weather import DetailedForecast, DailyForecast
+from api.core.database import get_db
+from api.models.location import Location
+from api.schemas.weather import DetailedForecast, DailyForecast
 
 router = APIRouter()
 
