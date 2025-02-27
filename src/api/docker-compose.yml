@@ -10,8 +10,8 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/src/api # ✅ Mount `src/api` inside the container
-      - C:/Users/sedat/Downloads/country-capitals/country-capital-lat-long-population.csv:/src/api/cities.csv # ✅ Mount CSV file
+      - .:/src/api 
+      - C:\Users\sedat\Downloads\country-capitals\country-capital-lat-long-population.csv
 
   db:
     container_name: postgres
