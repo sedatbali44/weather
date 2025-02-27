@@ -1,7 +1,7 @@
 services:
   api:
     build:
-      context: ./src/api
+      context: . # ✅ Build from `src/api/`
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
@@ -10,5 +10,31 @@ services:
     depends_on:
       - db
     volumes:
-      - ./src/api:/app
-      - C:/Users/sedat/Downloads/country-capitals/country-capital-lat-long-population.csv:/app/cities.csv
+      - .:/src/api # ✅ Mount `src/api` inside the container
+      - C:/Users/sedat/Downloads/country-capitals/country-capital-lat-long-population.csv:/src/api/cities.csv # ✅ Mount CSV file
+
+  db:
+    container_name: postgres
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DATABASE=postgres
+      - POSTGRES_DB=weather_db
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
