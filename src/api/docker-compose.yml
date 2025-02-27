@@ -1,0 +1,14 @@
+services:
+  api:
+    build:
+      context: ./src/api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/weather_db
+    depends_on:
+      - db
+    volumes:
+      - ./src/api:/app
+      - C:/Users/sedat/Downloads/country-capitals/country-capital-lat-long-population.csv:/app/cities.csv
