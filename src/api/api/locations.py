@@ -63,48 +63,6 @@ async def get_locations(db: Session = Depends(get_db)):
                 )
     
     return result
-    db_locations = db.query(Location).all()
-    result = []
-    
-    async with httpx.AsyncClient() as client:
-        for location in db_locations:
-            # Fetch current weather data from OpenMeteo
-            params = {
-                "latitude": location.latitude,
-                "longitude": location.longitude,
-                "current": "temperature_2m,rain,weather_code",
-                "forecast_days": 1
-            }
-            
-            response = await client.get(WEATHER_API_URL, params=params)
-            
-            if response.status_code == 200:
-                weather_data = response.json()
-                
-                current_weather = CurrentWeather(
-                    temperature=weather_data["current"]["temperature_2m"],
-                    rainfall=weather_data["current"]["rain"],
-                    weather_code=weather_data["current"]["weather_code"]
-                )
-                
-                result.append(
-                    LocationWeather(
-                        id=location.id,
-                        name=location.name,
-                        current=current_weather
-                    )
-                )
-            else:
-                # If API call fails, add location without weather data
-                result.append(
-                    LocationWeather(
-                        id=location.id,
-                        name=location.name,
-                        current=CurrentWeather(temperature=0, rainfall=0, weather_code=0)
-                    )
-                )
-    
-    return result
 
 @router.post("/locations", response_model=LocationSchema)
 def create_location(location: LocationCreate, db: Session = Depends(get_db)):
