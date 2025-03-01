@@ -1,2 +1,2 @@
-from api.models.location import Location
-from api.core.database import Base
+from models.location import Location
+from core.database import Base

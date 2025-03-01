@@ -1,6 +1,5 @@
 // frontend/composables/useWeatherAPI.js
 export default function useWeatherAPI() {
-    const config = useRuntimeConfig();
     const apiBaseUrl = 'http://localhost:8000';
 
     const fetchLocations = async () => {
