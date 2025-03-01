@@ -4,6 +4,8 @@ class LocationBase(BaseModel):
     name: str
     latitude: float
     longitude: float
+    population: int
+    capitalType: str
 
 class LocationCreate(LocationBase):
     pass
