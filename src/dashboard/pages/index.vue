@@ -4,3 +4,7 @@
         <WeatherTable />
     </div>
 </template>
+
+<script setup>
+import WeatherTable from './components/WeatherTable.vue';
+</script>

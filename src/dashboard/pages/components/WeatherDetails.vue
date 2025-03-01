@@ -49,7 +49,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-import { getWeatherIcon } from '~/utils/wmoCodeToIcon';
+import { getWeatherIcon } from '../utils/wmoCodeToIcon';
 
 const props = defineProps({
     open: {

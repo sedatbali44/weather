@@ -1,7 +1,7 @@
 <!-- frontend/components/weather/WeatherTable.vue -->
 <template>
     <div class="weather-table-container">
-        <div class="header-actions">
+        <div class="header-actions mb-4">
             <UButton icon="i-heroicons-plus" color="primary" @click="openAddLocationModal"> Add Location </UButton>
         </div>
 
@@ -48,7 +48,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getWeatherIcon } from '~/utils/wmoCodeToIcon';
+import { getWeatherIcon } from '../utils/wmoCodeToIcon';
+import AddLocationModal from './AddLocationModal.vue';
+import ConfirmationModal from './ConfirmationModal.vue';
+import WeatherDetails from './WeatherDetails.vue';
 
 const isAddLocationModalOpen = ref(false);
 const isConfirmationModalOpen = ref(false);
