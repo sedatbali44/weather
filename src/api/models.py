@@ -10,6 +10,6 @@ class Location(Base):
     name = Column(String, nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
-    population = Column(int, nullable=False)
+    population = Column(Integer, nullable=False)
     country = Column(String, nullable=False)
     capitalType = Column(String, nullable=False)

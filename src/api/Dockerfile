@@ -4,30 +4,22 @@ WORKDIR /src
 
 COPY requirements.txt .
 
+
+RUN apt-get update && apt-get install -y postgresql-client
+
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Create wait-for-db script
-COPY <<'EOT' /usr/local/bin/wait-for-db.sh
-#!/bin/bash
-set -e
-
-host="${DATABASE_URL##*@}"
-host="${host%%/*}"
-host="${host%%:*}"
-
-echo "Waiting for PostgreSQL to be ready at: $host"
-until PGPASSWORD=postgres psql -h "$host" -U postgres -c '\q'; do
-  echo "PostgreSQL is unavailable - sleeping"
-  sleep 1
-done
-
-echo "PostgreSQL is up - executing command"
-exec "$@"
-EOT
-
-RUN chmod +x /usr/local/bin/wait-for-db.sh
 
 COPY . .
 
-ENTRYPOINT ["wait-for-db.sh"]
+# Create a simple entrypoint script
+RUN echo '#!/bin/bash\n\
+echo "Waiting for PostgreSQL to be ready..."\n\
+until PGPASSWORD=postgres psql -h db -U postgres -c "\\q"; do\n\
+  echo "PostgreSQL is unavailable - sleeping"\n\
+  sleep 1\n\
+done\n\
+echo "PostgreSQL is up - executing command"\n\
+exec "$@"' > /entrypoint.sh && chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
