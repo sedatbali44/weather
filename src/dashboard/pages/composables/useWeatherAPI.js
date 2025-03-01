@@ -1,4 +1,3 @@
-// frontend/composables/useWeatherAPI.js
 export default function useWeatherAPI() {
     const apiBaseUrl = 'http://localhost:8000';
 

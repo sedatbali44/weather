@@ -7,7 +7,7 @@ from schemas.weather import DetailedForecast, DailyForecast
 
 router = APIRouter()
 
-# OpenMeteo API URL
+
 WEATHER_API_URL = "https://api.open-meteo.com/v1/forecast"
 
 @router.get("/forecast/{location_id}", response_model=DetailedForecast)
