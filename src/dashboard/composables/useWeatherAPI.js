@@ -1,87 +1,84 @@
-export default function useWeatherAPI() {
-    const apiBaseUrl = 'http://localhost:8000';
+import { ref } from 'vue';
+
+export const useWeatherAPI = () => {
+    const baseURL = 'http://localhost:8000';
 
     const fetchLocations = async () => {
         try {
-            console.log('Fetching locations from:', `${apiBaseUrl}/locations`);
-            const response = await fetch(`${apiBaseUrl}/locations`);
-
+            const response = await fetch(`${baseURL}/locations`);
             if (!response.ok) {
-                console.error('Server responded with status:', response.status);
-                throw new Error(`Failed to fetch locations: ${response.statusText}`);
+                throw new Error(`Failed to fetch locations: ${response.status}`);
             }
-
-            const data = await response.json();
-            console.log('Locations data:', data);
-            return data;
+            return await response.json();
         } catch (error) {
             console.error('Error fetching locations:', error);
             return [];
         }
     };
 
+    /**
+     * Fetches detailed 7-day forecast for a specific location
+     */
     const fetchForecast = async (locationId) => {
         try {
-            console.log('Fetching forecast for location ID:', locationId);
-            const response = await fetch(`${apiBaseUrl}/forecast/${locationId}`);
-
+            const response = await fetch(`${baseURL}/forecast/${locationId}`);
             if (!response.ok) {
-                console.error('Server responded with status:', response.status);
-                throw new Error(`Failed to fetch forecast: ${response.statusText}`);
+                throw new Error(`Failed to fetch forecast: ${response.status}`);
             }
-
-            const data = await response.json();
-            console.log('Forecast data:', data);
-            return data;
+            return await response.json();
         } catch (error) {
             console.error('Error fetching forecast:', error);
             return null;
         }
     };
 
+    /**
+     * Adds a new location to the database
+     */
     const addLocation = async (locationData) => {
         try {
-            console.log('Adding location:', locationData);
-            const response = await fetch(`${apiBaseUrl}/locations`, {
+            const response = await fetch(`${baseURL}/locations`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(locationData),
+                body: JSON.stringify({
+                    name: locationData.name,
+                    latitude: locationData.latitude,
+                    longitude: locationData.longitude,
+                    population: locationData.population || 0,
+                    capitalType: locationData.capitalType || 'city',
+                }),
             });
 
             if (!response.ok) {
-                console.error('Server responded with status:', response.status);
-                throw new Error(`Failed to add location: ${response.statusText}`);
+                throw new Error(`Failed to add location: ${response.status}`);
             }
 
-            const data = await response.json();
-            console.log('Added location data:', data);
-            return data;
+            return await response.json();
         } catch (error) {
             console.error('Error adding location:', error);
-            return null;
+            throw error;
         }
     };
 
+    /**
+     * Removes a location from the database
+     */
     const removeLocation = async (locationId) => {
         try {
-            console.log('Removing location ID:', locationId);
-            const response = await fetch(`${apiBaseUrl}/locations/${locationId}`, {
+            const response = await fetch(`${baseURL}/locations/${locationId}`, {
                 method: 'DELETE',
             });
 
             if (!response.ok) {
-                console.error('Server responded with status:', response.status);
-                throw new Error(`Failed to remove location: ${response.statusText}`);
+                throw new Error(`Failed to delete location: ${response.status}`);
             }
 
-            const data = await response.json();
-            console.log('Remove location response:', data);
-            return data;
+            return await response.json();
         } catch (error) {
             console.error('Error removing location:', error);
-            return null;
+            throw error;
         }
     };
 
@@ -91,4 +88,4 @@ export default function useWeatherAPI() {
         addLocation,
         removeLocation,
     };
-}
+};

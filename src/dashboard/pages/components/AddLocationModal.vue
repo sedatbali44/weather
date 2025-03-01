@@ -1,4 +1,4 @@
-<!-- frontend/components/weather/AddLocationModal.vue -->
+<!-- src/dashboard/pages/components/AddLocationModal.vue -->
 <template>
     <UModal v-model="isOpen" prevent-close>
         <UCard>
@@ -60,16 +60,16 @@ const selectedLocation = ref(null);
 // This would be the predefined list of locations
 // https://gist.github.com/ofou/df09a6834a8421b4f376c875194915c9
 const availableLocations = ref([
-    { name: 'New York', latitude: 40.7128, longitude: -74.006 },
-    { name: 'London', latitude: 51.5074, longitude: -0.1278 },
-    { name: 'Paris', latitude: 48.8566, longitude: 2.3522 },
-    { name: 'Tokyo', latitude: 35.6762, longitude: 139.6503 },
-    { name: 'Sydney', latitude: -33.8688, longitude: 151.2093 },
-    { name: 'Berlin', latitude: 52.52, longitude: 13.405 },
-    { name: 'Rome', latitude: 41.9028, longitude: 12.4964 },
-    { name: 'Madrid', latitude: 40.4168, longitude: -3.7038 },
-    { name: 'Moscow', latitude: 55.7558, longitude: 37.6173 },
-    { name: 'Beijing', latitude: 39.9042, longitude: 116.4074 },
+    { name: 'New York', latitude: 40.7128, longitude: -74.006, population: 8804190, capitalType: 'state' },
+    { name: 'London', latitude: 51.5074, longitude: -0.1278, population: 8961989, capitalType: 'primary' },
+    { name: 'Paris', latitude: 48.8566, longitude: 2.3522, population: 2140526, capitalType: 'primary' },
+    { name: 'Tokyo', latitude: 35.6762, longitude: 139.6503, population: 13929286, capitalType: 'primary' },
+    { name: 'Sydney', latitude: -33.8688, longitude: 151.2093, population: 5312163, capitalType: 'state' },
+    { name: 'Berlin', latitude: 52.52, longitude: 13.405, population: 3769495, capitalType: 'primary' },
+    { name: 'Rome', latitude: 41.9028, longitude: 12.4964, population: 2872800, capitalType: 'primary' },
+    { name: 'Madrid', latitude: 40.4168, longitude: -3.7038, population: 3266126, capitalType: 'primary' },
+    { name: 'Moscow', latitude: 55.7558, longitude: 37.6173, population: 12537954, capitalType: 'primary' },
+    { name: 'Beijing', latitude: 39.9042, longitude: 116.4074, population: 21542000, capitalType: 'primary' },
 ]);
 
 const { addLocation: apiAddLocation } = useWeatherAPI();
@@ -92,14 +92,21 @@ const closeModal = () => {
 
 const addLocation = async () => {
     if (selectedLocation.value) {
-        await apiAddLocation({
-            name: selectedLocation.value.name,
-            latitude: selectedLocation.value.latitude,
-            longitude: selectedLocation.value.longitude,
-        });
+        try {
+            await apiAddLocation({
+                name: selectedLocation.value.name,
+                latitude: selectedLocation.value.latitude,
+                longitude: selectedLocation.value.longitude,
+                population: selectedLocation.value.population,
+                capitalType: selectedLocation.value.capitalType,
+            });
 
-        emit('location-added');
-        closeModal();
+            emit('location-added');
+            closeModal();
+        } catch (error) {
+            console.error('Failed to add location:', error);
+            // Could add error handling UI here
+        }
     }
 };
 </script>

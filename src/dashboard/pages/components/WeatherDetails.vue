@@ -1,4 +1,4 @@
-<!-- frontend/components/weather/WeatherDetails.vue -->
+<!-- src/dashboard/pages/components/WeatherDetails.vue -->
 <template>
     <USlideover v-model="isOpen" :ui="{ width: 'sm:max-w-lg' }">
         <UCard>
@@ -15,7 +15,11 @@
                     <p class="mt-2 text-gray-500">Loading forecast...</p>
                 </div>
 
-                <div v-else-if="!forecast" class="py-8 text-center text-gray-500">Failed to load forecast data</div>
+                <div v-else-if="error" class="py-8 text-center text-gray-500">Failed to load forecast data</div>
+
+                <div v-else-if="!forecast?.daily?.length" class="py-8 text-center text-gray-500">
+                    No forecast data available
+                </div>
 
                 <div v-else class="space-y-4 py-2">
                     <div v-for="(day, index) in forecast.daily" :key="index" class="border-b last:border-0 pb-4">
@@ -35,7 +39,7 @@
                             <div class="text-right">
                                 <p>
                                     <span class="font-medium">{{ day.temperature_max.toFixed(1) }}°</span>
-                                    <span class="text-gray-500">{{ day.temperature_min.toFixed(1) }}°</span>
+                                    <span class="text-gray-500 ml-1">{{ day.temperature_min.toFixed(1) }}°</span>
                                 </p>
                                 <p class="text-sm text-gray-500">{{ day.rainfall_sum.toFixed(1) }} mm</p>
                             </div>
@@ -48,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch } from 'vue';
 import { getWeatherIcon } from '../utils/wmoCodeToIcon';
 import { useWeatherAPI } from '~/composables/useWeatherAPI';
 
@@ -68,6 +72,7 @@ const emit = defineEmits(['update:open']);
 const isOpen = ref(props.open);
 const forecast = ref(null);
 const loading = ref(false);
+const error = ref(false);
 
 const { fetchForecast } = useWeatherAPI();
 
@@ -97,9 +102,20 @@ watch(isOpen, (value) => {
 const loadForecastData = async () => {
     if (!props.locationId) return;
 
-    loading.value = true;
-    forecast.value = await fetchForecast(props.locationId);
-    loading.value = false;
+    try {
+        loading.value = true;
+        error.value = false;
+        forecast.value = await fetchForecast(props.locationId);
+
+        if (!forecast.value) {
+            error.value = true;
+        }
+    } catch (err) {
+        console.error('Error loading forecast:', err);
+        error.value = true;
+    } finally {
+        loading.value = false;
+    }
 };
 
 const formatDate = (dateString) => {
