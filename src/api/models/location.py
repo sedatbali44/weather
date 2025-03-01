@@ -10,3 +10,4 @@ class Location(Base):
     longitude = Column(Float, nullable=False)
     population = Column(Integer, nullable=True)
     capitalType = Column(String, nullable=True)
+    country = Column(String, nullable=True)

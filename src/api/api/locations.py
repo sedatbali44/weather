@@ -65,7 +65,8 @@ def create_location(location: LocationCreate, db: Session = Depends(get_db)):
         latitude=location.latitude,
         longitude=location.longitude,
         population=location.population,
-        capitalType=location.capitalType
+        capitalType=location.capitalType,
+        country=location.country
     )
     db.add(db_location)
     db.commit()

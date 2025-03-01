@@ -6,6 +6,7 @@ class LocationBase(BaseModel):
     longitude: float
     population: int
     capitalType: str
+    country: str
 
 class LocationCreate(LocationBase):
     pass
