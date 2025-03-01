@@ -21,7 +21,7 @@
                     >
                         <template #option="{ option }">
                             <div>
-                                <div>{{ option.name }}</div>
+                                <div>{{ option.name }}{{ option.country ? `, ${option.country}` : '' }}</div>
                                 <div class="text-gray-500 text-xs">
                                     Lat: {{ option.latitude.toFixed(2) }}, Long: {{ option.longitude.toFixed(2) }}
                                 </div>
@@ -57,19 +57,88 @@ const emit = defineEmits(['update:open', 'location-added']);
 const isOpen = ref(props.open);
 const selectedLocation = ref(null);
 
-// This would be the predefined list of locations
-// https://gist.github.com/ofou/df09a6834a8421b4f376c875194915c9
+// Enhanced city data with country information
 const availableLocations = ref([
-    { name: 'New York', latitude: 40.7128, longitude: -74.006, population: 8804190, capitalType: 'state' },
-    { name: 'London', latitude: 51.5074, longitude: -0.1278, population: 8961989, capitalType: 'primary' },
-    { name: 'Paris', latitude: 48.8566, longitude: 2.3522, population: 2140526, capitalType: 'primary' },
-    { name: 'Tokyo', latitude: 35.6762, longitude: 139.6503, population: 13929286, capitalType: 'primary' },
-    { name: 'Sydney', latitude: -33.8688, longitude: 151.2093, population: 5312163, capitalType: 'state' },
-    { name: 'Berlin', latitude: 52.52, longitude: 13.405, population: 3769495, capitalType: 'primary' },
-    { name: 'Rome', latitude: 41.9028, longitude: 12.4964, population: 2872800, capitalType: 'primary' },
-    { name: 'Madrid', latitude: 40.4168, longitude: -3.7038, population: 3266126, capitalType: 'primary' },
-    { name: 'Moscow', latitude: 55.7558, longitude: 37.6173, population: 12537954, capitalType: 'primary' },
-    { name: 'Beijing', latitude: 39.9042, longitude: 116.4074, population: 21542000, capitalType: 'primary' },
+    {
+        name: 'New York',
+        country: 'USA',
+        latitude: 40.7128,
+        longitude: -74.006,
+        population: 8804190,
+        capitalType: 'state',
+    },
+    {
+        name: 'London',
+        country: 'UK',
+        latitude: 51.5074,
+        longitude: -0.1278,
+        population: 8961989,
+        capitalType: 'primary',
+    },
+    {
+        name: 'Paris',
+        country: 'France',
+        latitude: 48.8566,
+        longitude: 2.3522,
+        population: 2140526,
+        capitalType: 'primary',
+    },
+    {
+        name: 'Tokyo',
+        country: 'Japan',
+        latitude: 35.6762,
+        longitude: 139.6503,
+        population: 13929286,
+        capitalType: 'primary',
+    },
+    {
+        name: 'Sydney',
+        country: 'Australia',
+        latitude: -33.8688,
+        longitude: 151.2093,
+        population: 5312163,
+        capitalType: 'state',
+    },
+    {
+        name: 'Berlin',
+        country: 'Germany',
+        latitude: 52.52,
+        longitude: 13.405,
+        population: 3769495,
+        capitalType: 'primary',
+    },
+    {
+        name: 'Rome',
+        country: 'Italy',
+        latitude: 41.9028,
+        longitude: 12.4964,
+        population: 2872800,
+        capitalType: 'primary',
+    },
+    {
+        name: 'Madrid',
+        country: 'Spain',
+        latitude: 40.4168,
+        longitude: -3.7038,
+        population: 3266126,
+        capitalType: 'primary',
+    },
+    {
+        name: 'Moscow',
+        country: 'Russia',
+        latitude: 55.7558,
+        longitude: 37.6173,
+        population: 12537954,
+        capitalType: 'primary',
+    },
+    {
+        name: 'Beijing',
+        country: 'China',
+        latitude: 39.9042,
+        longitude: 116.4074,
+        population: 21542000,
+        capitalType: 'primary',
+    },
 ]);
 
 const { addLocation: apiAddLocation } = useWeatherAPI();
@@ -99,6 +168,7 @@ const addLocation = async () => {
                 longitude: selectedLocation.value.longitude,
                 population: selectedLocation.value.population,
                 capitalType: selectedLocation.value.capitalType,
+                country: selectedLocation.value.country,
             });
 
             emit('location-added');

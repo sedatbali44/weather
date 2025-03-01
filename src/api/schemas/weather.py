@@ -1,3 +1,4 @@
+# src/api/schemas/weather.py
 from pydantic import BaseModel
 from typing import List
 
@@ -16,6 +17,9 @@ class DailyForecast(BaseModel):
 class LocationWeather(BaseModel):
     id: int
     name: str
+    country: str = None
+    population: int = None
+    capitalType: str = None
     current: CurrentWeather
 
 class DetailedForecast(BaseModel):

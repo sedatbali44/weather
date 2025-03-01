@@ -20,6 +20,14 @@
 
             <template #rainfall-data="{ row }"> {{ row.current.rainfall }} mm </template>
 
+            <template #country-data="{ row }"> {{ row.country || 'N/A' }} </template>
+
+            <template #population-data="{ row }">
+                {{ row.population ? row.population.toLocaleString() : 'N/A' }}
+            </template>
+
+            <template #capitalType-data="{ row }"> {{ row.capitalType || 'N/A' }} </template>
+
             <template #actions-data="{ row }">
                 <UButton
                     icon="i-heroicons-trash"
@@ -72,6 +80,18 @@ const columns = [
     {
         key: 'name',
         label: 'Location',
+    },
+    {
+        key: 'country',
+        label: 'Country',
+    },
+    {
+        key: 'population',
+        label: 'Population',
+    },
+    {
+        key: 'capitalType',
+        label: 'Capital Type',
     },
     {
         key: 'temperature',

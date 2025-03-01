@@ -46,7 +46,7 @@ export const useWeatherAPI = () => {
                     name: locationData.name,
                     latitude: locationData.latitude,
                     longitude: locationData.longitude,
-                    country : locationData.country,
+                    country: locationData.country || '',
                     population: locationData.population || 0,
                     capitalType: locationData.capitalType || 'city',
                 }),
