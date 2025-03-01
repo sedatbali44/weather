@@ -47,6 +47,7 @@
 </template>
 
 <script setup>
+import { useWeatherAPI } from '~/composables/useWeatherAPI';
 import { ref, onMounted } from 'vue';
 import { getWeatherIcon } from '../utils/wmoCodeToIcon';
 import AddLocationModal from './AddLocationModal.vue';

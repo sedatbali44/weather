@@ -50,6 +50,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { getWeatherIcon } from '../utils/wmoCodeToIcon';
+import { useWeatherAPI } from '~/composables/useWeatherAPI';
 
 const props = defineProps({
     open: {

@@ -1,2 +1,2 @@
-from models.location import Location
+from .location import Location
 from core.database import Base

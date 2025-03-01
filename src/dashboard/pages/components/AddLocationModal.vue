@@ -43,6 +43,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import { useWeatherAPI } from '~/composables/useWeatherAPI';
 
 const props = defineProps({
     open: {

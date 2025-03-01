@@ -8,3 +8,5 @@ class Location(Base):
     name = Column(String, nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
+    population = Column(Integer, nullable=True)
+    capitalType = Column(String, nullable=True)
