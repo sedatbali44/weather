@@ -1,28 +1,27 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.locations import router as locations_router
-from api.weather import router as weather_router
-from models import Base
-from core.database import engine
 
-# Create database tables
+from api.locations import router as locations_router
+from api.models import Base
+from api.core.database import engine
+
+# Create tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Weather Dashboard API")
+app = FastAPI()
 
-# CORS middleware
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],  # Allows all origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
 
 # Include routers
-app.include_router(locations_router, tags=["Locations"])
-app.include_router(weather_router, tags=["Weather"])
+app.include_router(locations_router, prefix="/locations", tags=["locations"])
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Weather Dashboard API"}
+    return {"message": "Weather Dashboard API"}

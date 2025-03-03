@@ -1,91 +1,112 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import httpx
-from core.database import get_db
-from models.location import Location
-from schemas.location import LocationSchema, LocationCreate
-from schemas.weather import LocationWeather, CurrentWeather
 from typing import List
+import httpx
+import datetime
 
+from api.models.location import Location
+from api.api.schemas import LocationCreate, Location as LocationSchema, LocationWithWeather, Forecast, ForecastDay, WeatherData
+from api.core.database import get_db
 
 router = APIRouter()
 
-# OpenMeteo API URL
-WEATHER_API_URL = "https://api.open-meteo.com/v1/forecast"
+async def fetch_weather_data(lat: float, lon: float):
+    """Fetch current weather data from OpenMeteo API"""
+    async with httpx.AsyncClient() as client:
+        url = f"https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "current": "temperature_2m,rain,weather_code",
+            "timezone": "auto"
+        }
+        response = await client.get(url, params=params)
+        data = response.json()
+        
+        return WeatherData(
+            temperature=data["current"]["temperature_2m"],
+            rainfall=data["current"]["rain"],
+            wmo_code=data["current"]["weather_code"]
+        )
 
-@router.get("/locations", response_model=List[LocationWeather])
-async def get_locations(db: Session = Depends(get_db)):
-    db_locations = db.query(Location).all()
-    result = []
+async def fetch_forecast_data(lat: float, lon: float):
+    """Fetch 7-day forecast data from OpenMeteo API"""
+    today = datetime.datetime.now().date()
+    end_date = today + datetime.timedelta(days=6)
     
     async with httpx.AsyncClient() as client:
-        for location in db_locations:
-            # Fetch current weather data from OpenMeteo
-            params = {
-                "latitude": location.latitude,
-                "longitude": location.longitude,
-                "current": "temperature_2m,rain,weather_code",
-                "forecast_days": 1
-            }
-            
-            response = await client.get(WEATHER_API_URL, params=params)
-            
-            if response.status_code == 200:
-                weather_data = response.json()
-                
-                current_weather = CurrentWeather(
-                    temperature=weather_data["current"]["temperature_2m"],
-                    rainfall=weather_data["current"]["rain"],
-                    weather_code=weather_data["current"]["weather_code"]
-                )
-                
-                result.append(
-                    LocationWeather(
-                        id=location.id,
-                        name=location.name,
-                        country=location.country,
-                        population=location.population,
-                        capitalType=location.capitalType,
-                        current=current_weather
-                    )
-                )
-            else:
-                # If API call fails, add location without weather data
-                result.append(
-                    LocationWeather(
-                        id=location.id,
-                        name=location.name,
-                        country=location.country,
-                        population=location.population,
-                        capitalType=location.capitalType,
-                        current=CurrentWeather(temperature=0, rainfall=0, weather_code=0)
-                    )
-                )
+        url = f"https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "daily": "temperature_2m_max,rain_sum,weather_code",
+            "timezone": "auto",
+            "start_date": today.isoformat(),
+            "end_date": end_date.isoformat()
+        }
+        response = await client.get(url, params=params)
+        data = response.json()
+        
+        days = []
+        for i in range(len(data["daily"]["time"])):
+            days.append(ForecastDay(
+                date=data["daily"]["time"][i],
+                temperature=data["daily"]["temperature_2m_max"][i],
+                rainfall=data["daily"]["rain_sum"][i],
+                wmo_code=data["daily"]["weather_code"][i]
+            ))
+        
+        return days
+
+@router.get("/", response_model=List[LocationWithWeather])
+async def get_locations(db: Session = Depends(get_db)):
+    """Get all locations with their current weather"""
+    locations = db.query(Location).all()
+    result = []
+    
+    for location in locations:
+        weather = await fetch_weather_data(location.latitude, location.longitude)
+        result.append(LocationWithWeather(
+            id=location.id,
+            name=location.name,
+            latitude=location.latitude,
+            longitude=location.longitude,
+            weather=weather
+        ))
     
     return result
 
-@router.post("/locations", response_model=LocationSchema)
+@router.post("/", response_model=LocationSchema)
 def create_location(location: LocationCreate, db: Session = Depends(get_db)):
-    db_location = Location(
-        name=location.name,
-        latitude=location.latitude,
-        longitude=location.longitude,
-        population=location.population,
-        capitalType=location.capitalType,
-        country=location.country
-    )
+    """Add a new location"""
+    db_location = Location(**location.dict())
     db.add(db_location)
     db.commit()
     db.refresh(db_location)
     return db_location
 
-@router.delete("/locations/{location_id}", response_model=dict)
+@router.delete("/{location_id}")
 def delete_location(location_id: int, db: Session = Depends(get_db)):
-    db_location = db.query(Location).filter(Location.id == location_id).first()
-    if db_location is None:
+    """Delete a location by ID"""
+    location = db.query(Location).filter(Location.id == location_id).first()
+    if location is None:
         raise HTTPException(status_code=404, detail="Location not found")
     
-    db.delete(db_location)
+    db.delete(location)
     db.commit()
-    
     return {"message": "Location deleted successfully"}
+
+@router.get("/forecast/{location_id}", response_model=Forecast)
+async def get_forecast(location_id: int, db: Session = Depends(get_db)):
+    """Get 7-day forecast for a location"""
+    location = db.query(Location).filter(Location.id == location_id).first()
+    if location is None:
+        raise HTTPException(status_code=404, detail="Location not found")
+    
+    forecast_days = await fetch_forecast_data(location.latitude, location.longitude)
+    
+    return Forecast(
+        location_id=location.id,
+        location_name=location.name,
+        days=forecast_days
+    )
