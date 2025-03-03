@@ -4,10 +4,10 @@ from typing import List
 import httpx
 import datetime
 
-from api.models.location import Location
+
 from api.api.schemas import LocationCreate, Location as LocationSchema, LocationWithWeather, Forecast, ForecastDay, WeatherData
 from api.core.database import get_db
-
+from api.models.location import Location
 router = APIRouter()
 
 async def fetch_weather_data(lat: float, lon: float):
