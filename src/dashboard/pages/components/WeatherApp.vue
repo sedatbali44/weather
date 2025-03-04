@@ -125,99 +125,96 @@
     </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue';
 import WeatherIcon from './WeatherIcon.vue';
+import { useWeatherAPI } from '~/composables/useWeatherAPI';
 
-export default {
-    components: {
-        WeatherIcon,
-    },
-    data() {
-        return {
-            locations: [],
-            selectedLocation: null,
-            showAddLocationModal: false,
-            newLocationInput: '',
-            currentLocation: 'New York, US',
-            errorMessage: '',
-            weeklyForecast: [
-                { day: 'Sunday', min: 16, max: 20, wmoCode: 2 },
-                { day: 'Monday', min: 12, max: 22, wmoCode: 3 },
-                { day: 'Tuesday', min: 13, max: 21, wmoCode: 1 },
-                { day: 'Wednesday', min: 18, max: 25, wmoCode: 0 },
-                { day: 'Thursday', min: 16, max: 20, wmoCode: 3 },
-                { day: 'Friday', min: 14, max: 23, wmoCode: 0 },
-                { day: 'Saturday', min: 12, max: 24, wmoCode: 3 },
-            ],
-        };
-    },
-    async created() {
-        try {
-            await this.fetchLocations();
-        } catch (error) {
-            this.errorMessage = 'Failed to load locations. Please try again later.';
+// Use the useWeatherAPI composable
+const { fetchLocations, addLocation: apiAddLocation } = useWeatherAPI();
+
+const locations = ref([]);
+const selectedLocation = ref(null);
+const showAddLocationModal = ref(false);
+const newLocationInput = ref('');
+const currentLocation = ref('New York, US');
+const errorMessage = ref('');
+const weeklyForecast = ref([
+    { day: 'Sunday', min: 16, max: 20, wmoCode: 2 },
+    { day: 'Monday', min: 12, max: 22, wmoCode: 3 },
+    { day: 'Tuesday', min: 13, max: 21, wmoCode: 1 },
+    { day: 'Wednesday', min: 18, max: 25, wmoCode: 0 },
+    { day: 'Thursday', min: 16, max: 20, wmoCode: 3 },
+    { day: 'Friday', min: 14, max: 23, wmoCode: 0 },
+    { day: 'Saturday', min: 12, max: 24, wmoCode: 3 },
+]);
+
+const fetchLocationsData = async () => {
+    try {
+        locations.value = await fetchLocations();
+
+        // Auto-select first location if exists
+        if (locations.value.length > 0) {
+            selectedLocation.value = locations.value[0];
         }
-    },
-    methods: {
-        async fetchLocations() {
-            try {
-                const response = await this.$axios.get('/locations');
-                this.locations = response.data;
+    } catch (error) {
+        console.error('Failed to fetch locations:', error);
+        errorMessage.value = 'Unable to fetch locations. Please check your connection.';
+    }
+};
 
-                // Auto-select first location if exists
-                if (this.locations.length > 0) {
-                    this.selectedLocation = this.locations[0];
-                }
-            } catch (error) {
-                console.error('Failed to fetch locations:', error);
-                this.errorMessage = 'Unable to fetch locations. Please check your connection.';
-            }
-        },
-        selectLocation(location) {
-            this.selectedLocation = location;
-        },
-        closeLocationDetails() {
-            this.selectedLocation = null;
-        },
-        openAddLocationModal() {
-            this.showAddLocationModal = true;
-            this.newLocationInput = '';
-        },
-        closeAddLocationModal() {
-            this.showAddLocationModal = false;
-            this.newLocationInput = '';
-        },
-        async addLocation() {
-            const locationName = this.newLocationInput.trim();
-            if (!locationName) return;
+onMounted(fetchLocationsData);
 
-            try {
-                const response = await this.$axios.post('/locations', {
-                    name: locationName,
-                });
+const selectLocation = (location) => {
+    selectedLocation.value = location;
+};
 
-                // Add new location to the list
-                this.locations.push(response.data);
+const closeLocationDetails = () => {
+    selectedLocation.value = null;
+};
 
-                // Select the newly added location
-                this.selectedLocation = response.data;
+const openAddLocationModal = () => {
+    showAddLocationModal.value = true;
+    newLocationInput.value = '';
+};
 
-                // Close the modal
-                this.closeAddLocationModal();
-            } catch (error) {
-                console.error('Failed to add location:', error);
-                this.errorMessage = 'Unable to add location. Please try again.';
-            }
-        },
-        getWeatherDescription(wmoCode) {
-            const descriptions = {
-                0: 'Clear Sky',
-                1: 'Mainly Clear',
-                2: 'Partly Cloudy',
-                3: 'Overcast',
-            };
-            return descriptions[wmoCode] || 'Unknown';
-        },
-    },
+const closeAddLocationModal = () => {
+    showAddLocationModal.value = false;
+    newLocationInput.value = '';
+};
+
+const addLocation = async () => {
+    const locationName = newLocationInput.value.trim();
+    if (!locationName) return;
+
+    try {
+        const newLocation = await apiAddLocation({
+            name: locationName,
+            latitude: 0, // Mock values - backend should handle this
+            longitude: 0,
+        });
+
+        // Add new location to the list
+        locations.value.push(newLocation);
+
+        // Select the newly added location
+        selectedLocation.value = newLocation;
+
+        // Close the modal
+        closeAddLocationModal();
+    } catch (error) {
+        console.error('Failed to add location:', error);
+        errorMessage.value = 'Unable to add location. Please try again.';
+    }
+};
+
+const getWeatherDescription = (wmoCode) => {
+    const descriptions = {
+        0: 'Clear Sky',
+        1: 'Mainly Clear',
+        2: 'Partly Cloudy',
+        3: 'Overcast',
+    };
+    return descriptions[wmoCode] || 'Unknown';
 };
 </script>
