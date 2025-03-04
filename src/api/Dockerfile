@@ -20,6 +20,6 @@ until PGPASSWORD=postgres psql -h db -U postgres -c "\\q"; do\n\
 done\n\
 echo "PostgreSQL is up - executing command"\n\
 exec "$@"' > /entrypoint.sh && chmod +x /entrypoint.sh
-
+ENV PYTHONPATH=/src
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

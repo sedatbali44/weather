@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float
-from core.database import Base
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 
 class Location(Base):
     __tablename__ = "locations"

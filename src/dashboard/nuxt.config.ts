@@ -1,13 +1,16 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+// nuxt.config.ts
 export default defineNuxtConfig({
-    app: {
-        head: {
-            title: 'DataCose: Code Challenge',
-        },
-    },
-    ssr: false,
-    devtools: { enabled: true },
-    pages: true,
-    modules: ['@nuxt/ui'],
-    compatibilityDate: '2025-02-27',
+  modules: ['@nuxt/ui'],
+
+  runtimeConfig: {
+      public: {
+          apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:8000',
+      },
+  },
+
+  ui: {
+      icons: ['heroicons'],
+  },
+
+  compatibilityDate: '2025-03-03',
 });
